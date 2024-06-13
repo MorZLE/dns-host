@@ -11,7 +11,7 @@ import (
 func NewGRPC(log *slog.Logger, port int, service *service.IService) *App {
 	grpcServer := grpc.NewServer()
 
-	RegisterServerAPI(grpcServer, NewController(service))
+	RegisterServerAPI(grpcServer, NewController(log, service))
 
 	return &App{
 		log:        log,
@@ -33,7 +33,7 @@ func (a *App) MustRun() {
 }
 
 func (a *App) Run() error {
-	const op = "controller.app.Run"
+	const op = "grpc.app.Run"
 	log := a.log.With(slog.String("op", op))
 
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
@@ -51,7 +51,7 @@ func (a *App) Run() error {
 }
 
 func (a *App) Stop() {
-	const op = "controller.app.Stop"
+	const op = "grpc.app.Stop"
 
 	a.log.With(slog.String("op", op)).Info("stopping gRPC server", slog.Int("port", a.port))
 

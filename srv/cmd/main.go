@@ -17,11 +17,11 @@ func main() {
 }
 
 func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
-	log.Info("starting server", slog.String("port", strconv.Itoa(cfg.Port)))
+	log.Info("starting server", slog.String("port", strconv.Itoa(cfg.GRPC.Port)))
 
 	logic := service.NewService(log)
 
-	grpcApp := grpc.NewGRPC(log, cfg.Port, &logic)
+	grpcApp := grpc.NewGRPC(log, cfg.GRPC.Port, &logic)
 
 	return grpcApp
 }

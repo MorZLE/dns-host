@@ -17,7 +17,8 @@ message  SetHostnameRequest {
   string hostname = 1;
 }
 message  SetHostnameResponse {
-  string error = 1;
+  bool success = 1;
+  string error = 2;
 }
 
 message GetHostnameRequest {
@@ -31,20 +32,28 @@ message GetAllDNSRequest {
 
 }
 message GetAllDNSResponse {
-  repeated string dns = 1;
+  repeated Dns items = 1;
+}
+message Dns {
+  string firstname = 1;
+  string ip = 2;
 }
 
 message SetDNSRequest {
   string name = 1;
-  string ip = 2;
+  string shortname = 2;
+  string ip = 3;
 }
 message SetDNSResponse {
-  string error = 1;
+  bool success = 1;
+  string error = 2;
 }
 
 message DeleteDNSRequest {
   string name = 1;
+  string ip = 2;
 }
 message DeleteDNSResponse {
-  string error = 1;
+  bool success = 1;
+  string error = 2;
 }

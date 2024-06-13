@@ -9,6 +9,10 @@ import (
 )
 
 type Config struct {
+	GRPC *grpcConfig `yaml:"grpc"`
+}
+
+type grpcConfig struct {
 	Port    int           `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
 }
@@ -28,7 +32,7 @@ func parseConfig() *Config {
 		log.Fatalf("failed to parse config file: %v", err)
 	}
 
-	if cfg.Port == 0 {
+	if cfg.GRPC.Port == 0 {
 		port, err := strconv.Atoi(os.Getenv("GRPC_PORT"))
 		if err != nil {
 			log.Fatalf("failed to parse config file: %v", err)
@@ -37,11 +41,11 @@ func parseConfig() *Config {
 			port = 44044
 		}
 
-		cfg.Port = port
+		cfg.GRPC.Port = port
 	}
 
-	if cfg.Timeout == 0 {
-		cfg.Timeout = 10 * time.Second
+	if cfg.GRPC.Timeout == 0 {
+		cfg.GRPC.Timeout = 10 * time.Second
 	}
 	return &cfg
 }
