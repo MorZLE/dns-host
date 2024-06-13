@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package serviceDNS;
+
+option go_package = "morzle.serviceDNS.v1";
+
+service serviceDNS {
+  rpc SetHostname (SetHostnameRequest) returns (SetHostnameResponse);
+  rpc GetHostname (GetHostnameRequest) returns (GetHostnameResponse);
+
+  rpc GetAllDNS (GetAllDNSRequest) returns (GetAllDNSResponse);
+  rpc SetDNS (SetDNSRequest) returns (SetDNSResponse);
+  rpc DeleteDNS (DeleteDNSRequest) returns (DeleteDNSResponse);
+}
+
+message  SetHostnameRequest {
+  string hostname = 1;
+}
+message  SetHostnameResponse {
+  string error = 1;
+}
+
+message GetHostnameRequest {
+
+}
+message GetHostnameResponse {
+  string hostname = 1;
+}
+
+message GetAllDNSRequest {
+
+}
+message GetAllDNSResponse {
+  repeated string dns = 1;
+}
+
+message SetDNSRequest {
+  string name = 1;
+  string ip = 2;
+}
+message SetDNSResponse {
+  string error = 1;
+}
+
+message DeleteDNSRequest {
+  string name = 1;
+}
+message DeleteDNSResponse {
+  string error = 1;
+}
