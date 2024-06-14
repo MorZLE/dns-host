@@ -11,13 +11,13 @@ import (
 	"sync"
 )
 
-func NewDns(log *slog.Logger, pathResolve string) (*Dns, error) {
-	dns := Dns{cacheDNS: map[model.Ip]model.Domain{}, pathResolve: pathResolve, log: log}
+func NewDNSWorker(log *slog.Logger, pathResolve string) (*DNSWorker, error) {
+	dns := DNSWorker{cacheDNS: map[model.Ip]model.Domain{}, pathResolve: pathResolve, log: log}
 	_, err := dns.getAllDNS(context.Background())
 	return &dns, err
 }
 
-type Dns struct {
+type DNSWorker struct {
 	log         *slog.Logger
 	mut         sync.Mutex
 	pathResolve string
@@ -25,7 +25,11 @@ type Dns struct {
 	cacheDNS    map[model.Ip]model.Domain
 }
 
-func (d *Dns) getAllDNS(ctx context.Context) (map[model.Ip]model.Domain, error) {
+func (d *DNSWorker) getAllDNS(ctx context.Context) (map[model.Ip]model.Domain, error) {
+	if ctx.Err() != nil {
+		return nil, cerror.ErrCancelled
+	}
+
 	if len(d.cacheDNS) > 0 {
 		return d.cacheDNS, nil
 	}
@@ -64,15 +68,11 @@ func (d *Dns) getAllDNS(ctx context.Context) (map[model.Ip]model.Domain, error) 
 	return d.cacheDNS, nil
 }
 
-func (d *Dns) setDNS(ctx context.Context, name, ip string) error {
-	d.mut.Lock()
-	d.cacheDNS[model.Ip(ip)] = model.Domain(name)
-	d.mut.Unlock()
+func (d *DNSWorker) deleteDNS(ctx context.Context, name, ip string) error {
+	if ctx.Err() != nil {
+		return cerror.ErrCancelled
+	}
 
-	return d.rewriteDNS(ctx)
-}
-
-func (d *Dns) deleteDNS(ctx context.Context, name, ip string) error {
 	if ip != "" {
 		d.mut.Lock()
 		delete(d.cacheDNS, model.Ip(ip))
@@ -101,7 +101,32 @@ func (d *Dns) deleteDNS(ctx context.Context, name, ip string) error {
 	return cerror.ErrBadDNS
 }
 
-func (d *Dns) rewriteDNS(ctx context.Context) error {
+func (d *DNSWorker) addDNS(ctx context.Context, name, ip string) error {
+	if ctx.Err() != nil {
+		return cerror.ErrCancelled
+	}
+	err := func() error {
+		d.mut.Lock()
+		defer d.mut.Unlock()
+		if _, ok := d.cacheDNS[model.Ip(ip)]; ok {
+			return cerror.ErrRewrite
+		}
+		d.cacheDNS[model.Ip(ip)] = model.Domain(name)
+		return nil
+	}()
+
+	if err != nil {
+		return err
+	}
+	err = d.rewriteDNS(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *DNSWorker) rewriteDNS(ctx context.Context) error {
+
 	d.mut.Lock()
 	defer d.mut.Unlock()
 
@@ -118,7 +143,7 @@ func (d *Dns) rewriteDNS(ctx context.Context) error {
 	return nil
 }
 
-func (d *Dns) writeDNS(ctx context.Context) error {
+func (d *DNSWorker) writeDNS(ctx context.Context) error {
 	file, err := os.OpenFile(d.pathResolve, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer file.Close()
 	if err != nil {
@@ -126,7 +151,7 @@ func (d *Dns) writeDNS(ctx context.Context) error {
 	}
 
 	b := strings.Builder{}
-	b.WriteString("# File managed by dns-host\n")
+	b.WriteString("# File managed by dns-host service\n")
 	for ip, domain := range d.cacheDNS {
 		b.WriteString(fmt.Sprintf("%s \t %s\n", ip, domain))
 	}

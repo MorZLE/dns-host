@@ -28,9 +28,14 @@ func RegisterServerAPI(gRPC *grpc.Server, srv *ServerAPI) {
 }
 
 func (s *ServerAPI) SetHostname(ctx context.Context, req *grpcServer.SetHostnameRequest) (*grpcServer.SetHostnameResponse, error) {
+	if ctx.Err() != nil {
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
+	}
+
 	s.log.Info("set hostname", slog.String("hostname", req.Hostname))
 	err := s.srv.SetHostname(ctx, req.Hostname)
 	if err != nil {
+		s.log.Error("failed to set hostname", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -38,10 +43,15 @@ func (s *ServerAPI) SetHostname(ctx context.Context, req *grpcServer.SetHostname
 }
 
 func (s *ServerAPI) GetHostname(ctx context.Context, req *grpcServer.GetHostnameRequest) (*grpcServer.GetHostnameResponse, error) {
+	if ctx.Err() != nil {
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
+	}
+
 	s.log.Info("get hostname")
 	var resp grpcServer.GetHostnameResponse
 	hostname, err := s.srv.GetHostname(ctx)
 	if err != nil {
+		s.log.Error("failed to get hostname", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	resp.Hostname = hostname
@@ -49,24 +59,18 @@ func (s *ServerAPI) GetHostname(ctx context.Context, req *grpcServer.GetHostname
 	return &resp, nil
 }
 
-func (s *ServerAPI) GetAllDNS(ctx context.Context, req *grpcServer.GetAllDNSRequest) (*grpcServer.GetAllDNSResponse, error) {
-	s.log.Info("get all dns")
-	var resp grpcServer.GetAllDNSResponse
-
-	items, err := s.srv.GetAllDNS(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+func (s *ServerAPI) AddDNS(ctx context.Context, req *grpcServer.AddDNSRequest) (*grpcServer.AddDNSResponse, error) {
+	if ctx.Err() != nil {
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
 	}
-	resp.Items = items
-	return &resp, nil
-}
-func (s *ServerAPI) SetDNS(ctx context.Context, req *grpcServer.SetDNSRequest) (*grpcServer.SetDNSResponse, error) {
-	s.log.Info("set dns", slog.String("hostname", req.NameServer), slog.String("ip", req.Ip))
-	var resp grpcServer.SetDNSResponse
 
-	err := s.srv.SetDNS(ctx, req.NameServer, req.Ip)
+	s.log.Info("add dns", slog.String("hostname", req.NameServer), slog.String("ip", req.Ip))
+	var resp grpcServer.AddDNSResponse
+
+	err := s.srv.AddDNS(ctx, req.NameServer, req.Ip)
 	if err != nil {
 		resp.Error = err.Error()
+		s.log.Error("failed to add dns", err)
 		return &resp, err
 	}
 	resp.Success = true
@@ -74,12 +78,35 @@ func (s *ServerAPI) SetDNS(ctx context.Context, req *grpcServer.SetDNSRequest) (
 	return &resp, nil
 }
 
+func (s *ServerAPI) GetAllDNS(ctx context.Context, req *grpcServer.GetAllDNSRequest) (*grpcServer.GetAllDNSResponse, error) {
+	if ctx.Err() != nil {
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
+	}
+
+	s.log.Info("get all dns")
+	var resp grpcServer.GetAllDNSResponse
+
+	items, err := s.srv.GetAllDNS(ctx)
+	if err != nil {
+		s.log.Error("failed to get all dns", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	resp.Items = items
+
+	return &resp, nil
+}
+
 func (s *ServerAPI) DeleteDNS(ctx context.Context, req *grpcServer.DeleteDNSRequest) (*grpcServer.DeleteDNSResponse, error) {
+	if ctx.Err() != nil {
+		return nil, status.Error(codes.Canceled, "the client canceled the request")
+	}
+
 	s.log.Info("delete dns", slog.String("hostname", req.NameServer))
 	var resp grpcServer.DeleteDNSResponse
 
 	err := s.srv.DeleteDNS(ctx, req.NameServer, req.Ip)
 	if err != nil {
+		s.log.Error("failed to delete dns", err)
 		resp.Error = err.Error()
 		return &resp, err
 	}

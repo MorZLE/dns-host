@@ -8,8 +8,8 @@ service serviceDNS {
   rpc SetHostname (SetHostnameRequest) returns (SetHostnameResponse);
   rpc GetHostname (GetHostnameRequest) returns (GetHostnameResponse);
 
+  rpc AddDNS (AddDNSRequest) returns (AddDNSResponse);
   rpc GetAllDNS (GetAllDNSRequest) returns (GetAllDNSResponse);
-  rpc SetDNS (SetDNSRequest) returns (SetDNSResponse);
   rpc DeleteDNS (DeleteDNSRequest) returns (DeleteDNSResponse);
 }
 
@@ -38,12 +38,12 @@ message Dns {
   string nameServer = 1;
   string ip = 2;
 }
-
-message SetDNSRequest {
+message AddDNSRequest {
   string nameServer = 1;
   string ip = 2;
 }
-message SetDNSResponse {
+
+message AddDNSResponse {
   bool success = 1;
   string error = 2;
 }

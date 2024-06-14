@@ -9,11 +9,17 @@ import (
 )
 
 func getHostname(ctx context.Context) (string, error) {
+	if ctx.Err() != nil {
+		return "", cerror.ErrCancelled
+	}
+	ctx.Done()
 	return os.Hostname()
 }
 
 func setHostname(ctx context.Context, newHost string) error {
-	const op = "service.Host.SetHostname"
+	if ctx.Err() != nil {
+		return cerror.ErrCancelled
+	}
 	if newHost == "" {
 		return cerror.ErrBadHostname
 	}

@@ -20,7 +20,7 @@ func main() {
 func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
 	log.Info("starting server", slog.String("port", strconv.Itoa(cfg.GRPC.Port)))
 
-	dns, err := service.NewDns(log, cfg.DNS.PathResolve)
+	dns, err := service.NewDNSWorker(log, cfg.DNS.PathResolve)
 	if err != nil {
 		log.Error("failed to create dns", err)
 		os.Exit(1)
