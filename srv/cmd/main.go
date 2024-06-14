@@ -5,6 +5,7 @@ import (
 	"dns-host/srv/internal/grpc"
 	"dns-host/srv/internal/service"
 	"log/slog"
+	"os"
 	"strconv"
 )
 
@@ -19,8 +20,12 @@ func main() {
 func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
 	log.Info("starting server", slog.String("port", strconv.Itoa(cfg.GRPC.Port)))
 
-	logic := service.NewService(log)
-
+	dns, err := service.NewDns(log, cfg.DNS.PathResolve)
+	if err != nil {
+		log.Error("failed to create dns", err)
+		os.Exit(1)
+	}
+	logic := service.NewService(log, dns)
 	grpcApp := grpc.NewGRPC(log, cfg.GRPC.Port, &logic)
 
 	return grpcApp

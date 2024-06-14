@@ -13,14 +13,14 @@ import (
 func NewController(log *slog.Logger, service *service.IService) *ServerAPI {
 	return &ServerAPI{
 		srv: *service,
-		log: *log,
+		log: log,
 	}
 }
 
 type ServerAPI struct {
 	grpcServer.UnimplementedServiceDNSServer
 	srv service.IService
-	log slog.Logger
+	log *slog.Logger
 }
 
 func RegisterServerAPI(gRPC *grpc.Server, srv *ServerAPI) {
@@ -40,8 +40,11 @@ func (s *ServerAPI) SetHostname(ctx context.Context, req *grpcServer.SetHostname
 func (s *ServerAPI) GetHostname(ctx context.Context, req *grpcServer.GetHostnameRequest) (*grpcServer.GetHostnameResponse, error) {
 	s.log.Info("get hostname")
 	var resp grpcServer.GetHostnameResponse
-
-	resp.Hostname = s.srv.GetHostname(ctx)
+	hostname, err := s.srv.GetHostname(ctx)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	resp.Hostname = hostname
 
 	return &resp, nil
 }
@@ -50,15 +53,18 @@ func (s *ServerAPI) GetAllDNS(ctx context.Context, req *grpcServer.GetAllDNSRequ
 	s.log.Info("get all dns")
 	var resp grpcServer.GetAllDNSResponse
 
-	resp.Items = s.srv.GetAllDNS(ctx)
-
+	items, err := s.srv.GetAllDNS(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	resp.Items = items
 	return &resp, nil
 }
 func (s *ServerAPI) SetDNS(ctx context.Context, req *grpcServer.SetDNSRequest) (*grpcServer.SetDNSResponse, error) {
-	s.log.Info("set dns", slog.String("hostname", req.Name), slog.String("ip", req.Ip))
+	s.log.Info("set dns", slog.String("hostname", req.NameServer), slog.String("ip", req.Ip))
 	var resp grpcServer.SetDNSResponse
 
-	err := s.srv.SetDNS(ctx, req.Name, req.Shortname, req.Ip)
+	err := s.srv.SetDNS(ctx, req.NameServer, req.Ip)
 	if err != nil {
 		resp.Error = err.Error()
 		return &resp, err
@@ -69,10 +75,10 @@ func (s *ServerAPI) SetDNS(ctx context.Context, req *grpcServer.SetDNSRequest) (
 }
 
 func (s *ServerAPI) DeleteDNS(ctx context.Context, req *grpcServer.DeleteDNSRequest) (*grpcServer.DeleteDNSResponse, error) {
-	s.log.Info("delete dns", slog.String("hostname", req.Name))
+	s.log.Info("delete dns", slog.String("hostname", req.NameServer))
 	var resp grpcServer.DeleteDNSResponse
 
-	err := s.srv.DeleteDNS(ctx, req.Name, req.Ip)
+	err := s.srv.DeleteDNS(ctx, req.NameServer, req.Ip)
 	if err != nil {
 		resp.Error = err.Error()
 		return &resp, err

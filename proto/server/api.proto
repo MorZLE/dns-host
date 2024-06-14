@@ -35,14 +35,13 @@ message GetAllDNSResponse {
   repeated Dns items = 1;
 }
 message Dns {
-  string firstname = 1;
+  string nameServer = 1;
   string ip = 2;
 }
 
 message SetDNSRequest {
-  string name = 1;
-  string shortname = 2;
-  string ip = 3;
+  string nameServer = 1;
+  string ip = 2;
 }
 message SetDNSResponse {
   bool success = 1;
@@ -50,7 +49,7 @@ message SetDNSResponse {
 }
 
 message DeleteDNSRequest {
-  string name = 1;
+  string nameServer = 1;
   string ip = 2;
 }
 message DeleteDNSResponse {

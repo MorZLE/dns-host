@@ -10,6 +10,11 @@ import (
 
 type Config struct {
 	GRPC *grpcConfig `yaml:"grpc"`
+	DNS  *DNSConfig  `yaml:"dns"`
+}
+
+type DNSConfig struct {
+	PathResolve string `yaml:"pathResolve"`
 }
 
 type grpcConfig struct {
@@ -44,8 +49,5 @@ func parseConfig() *Config {
 		cfg.GRPC.Port = port
 	}
 
-	if cfg.GRPC.Timeout == 0 {
-		cfg.GRPC.Timeout = 10 * time.Second
-	}
 	return &cfg
 }

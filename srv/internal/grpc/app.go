@@ -10,7 +10,6 @@ import (
 
 func NewGRPC(log *slog.Logger, port int, service *service.IService) *App {
 	grpcServer := grpc.NewServer()
-
 	RegisterServerAPI(grpcServer, NewController(log, service))
 
 	return &App{
@@ -27,12 +26,12 @@ type App struct {
 }
 
 func (a *App) MustRun() {
-	if err := a.Run(); err != nil {
+	if err := a.run(); err != nil {
 		panic(err)
 	}
 }
 
-func (a *App) Run() error {
+func (a *App) run() error {
 	const op = "grpc.app.Run"
 	log := a.log.With(slog.String("op", op))
 
