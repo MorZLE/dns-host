@@ -2,17 +2,18 @@ package service
 
 import (
 	"context"
-	"dns-host/srv/model"
-	"dns-host/srv/model/cerror"
+	"dns-host/pkg"
+	"dns-host/pkg/cerror"
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
 )
 
 func NewDNSWorker(log *slog.Logger, pathResolve string) (*DNSWorker, error) {
-	dns := DNSWorker{cacheDNS: map[model.Ip]model.Domain{}, pathResolve: pathResolve, log: log}
+	dns := DNSWorker{cacheDNS: map[pkg.Ip]pkg.Domain{}, pathResolve: pathResolve, log: log}
 	_, err := dns.getAllDNS(context.Background())
 	return &dns, err
 }
@@ -22,10 +23,10 @@ type DNSWorker struct {
 	mut         sync.Mutex
 	pathResolve string
 	otherData   []string
-	cacheDNS    map[model.Ip]model.Domain
+	cacheDNS    map[pkg.Ip]pkg.Domain
 }
 
-func (d *DNSWorker) getAllDNS(ctx context.Context) (map[model.Ip]model.Domain, error) {
+func (d *DNSWorker) getAllDNS(ctx context.Context) (map[pkg.Ip]pkg.Domain, error) {
 	if ctx.Err() != nil {
 		return nil, cerror.ErrCancelled
 	}
@@ -54,12 +55,12 @@ func (d *DNSWorker) getAllDNS(ctx context.Context) (map[model.Ip]model.Domain, e
 		}
 
 		dnsRow := strings.Fields(strings.TrimSpace(rows[i]))
-		if len(dnsRow) != 2 && !model.Ip(dnsRow[0]).Valid() { // если это не данные о dns сервере записываем в слайс
+		if len(dnsRow) != 2 && !pkg.Ip(dnsRow[0]).Valid() { // если это не данные о dns сервере записываем в слайс
 			d.otherData = append(d.otherData, rows[i])
 			continue
 		}
-		ip := model.Ip(dnsRow[0])
-		domain := model.Domain(dnsRow[1])
+		ip := pkg.Ip(dnsRow[0])
+		domain := pkg.Domain(dnsRow[1])
 		if ip.Valid() && domain.Valid() {
 			d.cacheDNS[ip] = domain
 		}
@@ -75,7 +76,7 @@ func (d *DNSWorker) deleteDNS(ctx context.Context, name, ip string) error {
 
 	if ip != "" {
 		d.mut.Lock()
-		delete(d.cacheDNS, model.Ip(ip))
+		delete(d.cacheDNS, pkg.Ip(ip))
 		d.mut.Unlock()
 		err := d.rewriteDNS(ctx)
 		if err != nil {
@@ -85,7 +86,7 @@ func (d *DNSWorker) deleteDNS(ctx context.Context, name, ip string) error {
 	}
 	if name != "" {
 		for k, v := range d.cacheDNS {
-			if v == model.Domain(name) {
+			if v == pkg.Domain(name) {
 				d.mut.Lock()
 				delete(d.cacheDNS, k)
 				d.mut.Unlock()
@@ -108,10 +109,10 @@ func (d *DNSWorker) addDNS(ctx context.Context, name, ip string) error {
 	err := func() error {
 		d.mut.Lock()
 		defer d.mut.Unlock()
-		if _, ok := d.cacheDNS[model.Ip(ip)]; ok {
+		if _, ok := d.cacheDNS[pkg.Ip(ip)]; ok {
 			return cerror.ErrRewrite
 		}
-		d.cacheDNS[model.Ip(ip)] = model.Domain(name)
+		d.cacheDNS[pkg.Ip(ip)] = pkg.Domain(name)
 		return nil
 	}()
 
@@ -126,7 +127,6 @@ func (d *DNSWorker) addDNS(ctx context.Context, name, ip string) error {
 }
 
 func (d *DNSWorker) rewriteDNS(ctx context.Context) error {
-
 	d.mut.Lock()
 	defer d.mut.Unlock()
 
@@ -134,11 +134,15 @@ func (d *DNSWorker) rewriteDNS(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	//	cmd := exec.Command("systemctl restart NetworkManager")
-	//	err = cmd.Run()
-	//	if err != nil {
-	//		return err
-	//	}
+
+	return d.restartManagerDNS()
+}
+func (d *DNSWorker) restartManagerDNS() error {
+	cmd := exec.Command("systemctl restart NetworkManager")
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

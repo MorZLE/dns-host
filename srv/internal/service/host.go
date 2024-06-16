@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"dns-host/srv/model/cerror"
+	"dns-host/pkg/cerror"
 	"fmt"
 	"os"
 	"os/exec"
@@ -29,11 +29,15 @@ func setHostname(ctx context.Context, newHost string) error {
 	if err != nil {
 		return err
 	}
-	cmd = exec.Command("systemctl restart systemd-hostnamed")
-	err = cmd.Run()
+
+	return restartHostnamed()
+}
+
+func restartHostnamed() error {
+	cmd := exec.Command("systemctl restart systemd-hostnamed")
+	err := cmd.Run()
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

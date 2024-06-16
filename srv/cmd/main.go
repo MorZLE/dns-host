@@ -2,7 +2,7 @@ package main
 
 import (
 	"dns-host/srv/config"
-	"dns-host/srv/internal/grpc"
+	"dns-host/srv/internal"
 	"dns-host/srv/internal/service"
 	"log/slog"
 	"os"
@@ -17,7 +17,7 @@ func main() {
 	app.MustRun()
 }
 
-func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
+func NewApp(log *slog.Logger, cfg *config.Config) *internal.App {
 	log.Info("starting server", slog.String("port", strconv.Itoa(cfg.GRPC.Port)))
 
 	dns, err := service.NewDNSWorker(log, cfg.DNS.PathResolve)
@@ -26,7 +26,7 @@ func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
 		os.Exit(1)
 	}
 	logic := service.NewService(log, dns)
-	grpcApp := grpc.NewGRPC(log, cfg.GRPC.Port, &logic)
+	grpcApp := internal.NewGRPC(log, cfg.GRPC.Port, &logic)
 
 	return grpcApp
 }

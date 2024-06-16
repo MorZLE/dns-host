@@ -4,20 +4,14 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
-	"strconv"
 )
 
 type Config struct {
 	GRPC *grpcConfig `yaml:"grpc"`
-	DNS  *DNSConfig  `yaml:"dns"`
-}
-
-type DNSConfig struct {
-	PathResolve string `yaml:"pathResolve"`
 }
 
 type grpcConfig struct {
-	Port int `yaml:"port"`
+	Host string `yaml:"host"`
 }
 
 func NewConfig() *Config {
@@ -25,7 +19,7 @@ func NewConfig() *Config {
 }
 
 func parseConfig() *Config {
-	file, err := os.ReadFile("srv/config/config.yaml")
+	file, err := os.ReadFile("config/config.yaml")
 	if err != nil {
 		log.Fatalf("failed to read config file: %v", err)
 	}
@@ -35,16 +29,12 @@ func parseConfig() *Config {
 		log.Fatalf("failed to parse config file: %v", err)
 	}
 
-	if cfg.GRPC.Port == 0 {
-		port, err := strconv.Atoi(os.Getenv("GRPC_PORT"))
-		if err != nil {
-			log.Fatalf("failed to parse config file: %v", err)
+	if cfg.GRPC.Host == "" {
+		host := os.Getenv("GRPC_HOST")
+		if host == "" {
+			log.Fatal("failed to parse GRPC_HOST")
 		}
-		if port == 0 {
-			port = 44044
-		}
-
-		cfg.GRPC.Port = port
+		cfg.GRPC.Host = host
 	}
 
 	return &cfg

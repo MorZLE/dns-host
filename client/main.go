@@ -1,15 +1,16 @@
 /*
-Copyright © 2024 MorZle
+Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 */
 package main
 
 import (
 	"dns-host/client/cmd"
-	"dns-host/client/internal"
+	"dns-host/client/config"
+	"dns-host/client/service"
 )
 
 func main() {
-	srv := internal.InitGrpcClient("127.0.0.1:44044")
-	cmd.InitGRPCinCLI(srv)
+	cfg := config.NewConfig()
+	service.SetServerAddr(cfg.GRPC.Host)
 	cmd.Execute()
 }

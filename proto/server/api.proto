@@ -7,10 +7,12 @@ option go_package = "morzle.serviceDNS.v1";
 service serviceDNS {
   rpc SetHostname (SetHostnameRequest) returns (SetHostnameResponse);
   rpc GetHostname (GetHostnameRequest) returns (GetHostnameResponse);
+  rpc RestartHost (RestartHostRequest) returns (RestartHostResponse);
 
   rpc AddDNS (AddDNSRequest) returns (AddDNSResponse);
   rpc GetAllDNS (GetAllDNSRequest) returns (GetAllDNSResponse);
   rpc DeleteDNS (DeleteDNSRequest) returns (DeleteDNSResponse);
+  rpc RestartDNS (RestartDNSRequest) returns (RestartDNSResponse);
 }
 
 message  SetHostnameRequest {
@@ -18,19 +20,19 @@ message  SetHostnameRequest {
 }
 message  SetHostnameResponse {
   bool success = 1;
-  string error = 2;
 }
 
-message GetHostnameRequest {
-
-}
+message GetHostnameRequest {}
 message GetHostnameResponse {
   string hostname = 1;
 }
 
-message GetAllDNSRequest {
-
+message RestartHostRequest {}
+message RestartHostResponse {
+  bool success = 1;
 }
+
+message GetAllDNSRequest {}
 message GetAllDNSResponse {
   repeated Dns items = 1;
 }
@@ -53,6 +55,12 @@ message DeleteDNSRequest {
   string ip = 2;
 }
 message DeleteDNSResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message RestartDNSRequest {}
+message RestartDNSResponse {
   bool success = 1;
   string error = 2;
 }
