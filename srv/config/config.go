@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"time"
 )
 
 type Config struct {
@@ -18,8 +17,7 @@ type DNSConfig struct {
 }
 
 type grpcConfig struct {
-	Port    int           `yaml:"port"`
-	Timeout time.Duration `yaml:"timeout"`
+	Port int `yaml:"port"`
 }
 
 func NewConfig() *Config {
@@ -29,24 +27,31 @@ func NewConfig() *Config {
 func parseConfig() *Config {
 	file, err := os.ReadFile("srv/config/config.yaml")
 	if err != nil {
-		log.Fatalf("failed to read config file: %v", err)
+		log.Printf("failed to read config file: %v", err)
 	}
 	var cfg Config
 
 	if err := yaml.Unmarshal(file, &cfg); err != nil {
-		log.Fatalf("failed to parse config file: %v", err)
+		log.Printf("failed to parse config file: %v", err)
 	}
 
 	if cfg.GRPC.Port == 0 {
 		port, err := strconv.Atoi(os.Getenv("GRPC_PORT"))
 		if err != nil {
-			log.Fatalf("failed to parse config file: %v", err)
+			log.Printf("failed to parse config file: %v", err)
 		}
 		if port == 0 {
 			port = 44044
 		}
 
 		cfg.GRPC.Port = port
+	}
+	if cfg.DNS.PathResolve == "" {
+		path := os.Getenv("DNS_PATH_RESOLVE")
+		if path == "" {
+			path = "/etc/resolv.conf"
+		}
+		cfg.DNS.PathResolve = path
 	}
 
 	return &cfg

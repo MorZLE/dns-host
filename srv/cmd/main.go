@@ -2,11 +2,13 @@ package main
 
 import (
 	"dns-host/srv/config"
-	"dns-host/srv/internal/grpc"
+	"dns-host/srv/internal"
 	"dns-host/srv/internal/service"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 )
 
 func main() {
@@ -14,10 +16,18 @@ func main() {
 	log := slog.Default()
 	app := NewApp(log, cnf)
 
-	app.MustRun()
+	go app.MustRun()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sig := <-stop
+	log.Info("stopping application", slog.String("signal", sig.String()))
+
+	app.Stop()
+	log.Info("application stop")
 }
 
-func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
+func NewApp(log *slog.Logger, cfg *config.Config) *internal.App {
 	log.Info("starting server", slog.String("port", strconv.Itoa(cfg.GRPC.Port)))
 
 	dns, err := service.NewDNSWorker(log, cfg.DNS.PathResolve)
@@ -26,7 +36,7 @@ func NewApp(log *slog.Logger, cfg *config.Config) *grpc.App {
 		os.Exit(1)
 	}
 	logic := service.NewService(log, dns)
-	grpcApp := grpc.NewGRPC(log, cfg.GRPC.Port, &logic)
+	grpcApp := internal.NewGRPC(log, cfg.GRPC.Port, &logic)
 
 	return grpcApp
 }

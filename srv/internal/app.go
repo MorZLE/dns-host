@@ -1,6 +1,7 @@
-package grpc
+package internal
 
 import (
+	grpc2 "dns-host/srv/internal/grpc"
 	"dns-host/srv/internal/service"
 	"fmt"
 	"google.golang.org/grpc"
@@ -10,7 +11,7 @@ import (
 
 func NewGRPC(log *slog.Logger, port int, service *service.IService) *App {
 	grpcServer := grpc.NewServer()
-	RegisterServerAPI(grpcServer, NewController(log, service))
+	grpc2.RegisterServerAPI(grpcServer, grpc2.NewController(log, service))
 
 	return &App{
 		log:        log,
@@ -53,6 +54,5 @@ func (a *App) Stop() {
 	const op = "grpc.app.Stop"
 
 	a.log.With(slog.String("op", op)).Info("stopping gRPC server", slog.Int("port", a.port))
-
 	a.gRPCServer.GracefulStop()
 }
