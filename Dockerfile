@@ -1,14 +1,27 @@
-FROM golang:latest
+# Use the official Ubuntu image
+FROM golang:alpine as builder
 
 WORKDIR /app
-COPY srv/go.mod go.sum ./
 
-COPY ./srv/ ./
+COPY . .
 
-
+# Install dependencies
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o srv/cmd/main.go
+# Build the application
+RUN go build -o server srv/cmd/main.go
+
+
+
+FROM ubuntu:latest as Worker
+
+COPY --from=builder /app /app
 
 EXPOSE 44044
-CMD ["sudo /dns-host"]
+
+WORKDIR /app
+
+RUN  apt-get update \
+        &&  apt-get upgrade -y
+
+CMD ["./server"]

@@ -6,7 +6,9 @@ import (
 	"dns-host/srv/internal/service"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 )
 
 func main() {
@@ -14,7 +16,15 @@ func main() {
 	log := slog.Default()
 	app := NewApp(log, cnf)
 
-	app.MustRun()
+	go app.MustRun()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sig := <-stop
+	log.Info("stopping application", slog.String("signal", sig.String()))
+
+	app.Stop()
+	log.Info("application stop")
 }
 
 func NewApp(log *slog.Logger, cfg *config.Config) *internal.App {

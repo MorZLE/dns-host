@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -17,11 +14,11 @@ var getHostCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		hostname, err := service.GetHostname()
 		if err != nil {
-			print(err.Error(), color.CRed)
+			color.Print(err.Error(), color.CRed)
 			return
 		}
 
-		print(hostname, color.CGreen)
+		color.Print(hostname, color.CGreen)
 	},
 }
 

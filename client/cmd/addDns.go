@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -20,16 +17,16 @@ var addDnsCmd = &cobra.Command{
 		hostname := cmd.Flag("server").Value.String()
 		ip := cmd.Flag("ip").Value.String()
 		if !pkg.Ip(ip).Valid() && !pkg.Domain(hostname).Valid() {
-			print("Некорректные данные", color.CRed)
+			color.Print("Некорректные данные", color.CRed)
 			return
 		}
 
 		res, err := service.AddDNS(hostname, ip)
 		if err != nil && !res {
-			print(fmt.Sprintf("Сервер %s IP %s не добавлен, ошибка %s", hostname, ip, err), color.CRed)
+			color.Print(fmt.Sprintf("Сервер %s IP %s не добавлен, ошибка %s", hostname, ip, err), color.CRed)
 			return
 		}
-		print(fmt.Sprintf("Сервер %s IP %s добавлен", hostname, ip), color.CGreen)
+		color.Print(fmt.Sprintf("Сервер %s IP %s добавлен", hostname, ip), color.CGreen)
 
 	},
 }

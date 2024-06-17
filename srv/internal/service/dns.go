@@ -15,6 +15,7 @@ import (
 func NewDNSWorker(log *slog.Logger, pathResolve string) (*DNSWorker, error) {
 	dns := DNSWorker{cacheDNS: map[pkg.Ip]pkg.Domain{}, pathResolve: pathResolve, log: log}
 	_, err := dns.getAllDNS(context.Background())
+
 	return &dns, err
 }
 
@@ -55,7 +56,11 @@ func (d *DNSWorker) getAllDNS(ctx context.Context) (map[pkg.Ip]pkg.Domain, error
 		}
 
 		dnsRow := strings.Fields(strings.TrimSpace(rows[i]))
-		if len(dnsRow) != 2 && !pkg.Ip(dnsRow[0]).Valid() { // если это не данные о dns сервере записываем в слайс
+		if len(dnsRow) == 0 {
+			continue
+		}
+
+		if !pkg.Ip(dnsRow[0]).Valid() { // если это не данные о dns сервере записываем в слайс
 			d.otherData = append(d.otherData, rows[i])
 			continue
 		}
@@ -123,9 +128,11 @@ func (d *DNSWorker) addDNS(ctx context.Context, name, ip string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
+// rewriteDNS перезаписывает файл с dns
 func (d *DNSWorker) rewriteDNS(ctx context.Context) error {
 	d.mut.Lock()
 	defer d.mut.Unlock()
@@ -137,8 +144,10 @@ func (d *DNSWorker) rewriteDNS(ctx context.Context) error {
 
 	return d.restartManagerDNS()
 }
+
+// restartManagerDNS перезапускает NetworkManager
 func (d *DNSWorker) restartManagerDNS() error {
-	cmd := exec.Command("systemctl restart NetworkManager")
+	cmd := exec.Command("sudo systemctl restart NetworkManager")
 	err := cmd.Run()
 	if err != nil {
 		return err
@@ -147,6 +156,7 @@ func (d *DNSWorker) restartManagerDNS() error {
 	return nil
 }
 
+// writeDNS записывает файл с dns
 func (d *DNSWorker) writeDNS(ctx context.Context) error {
 	file, err := os.OpenFile(d.pathResolve, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer file.Close()

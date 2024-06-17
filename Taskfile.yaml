@@ -10,8 +10,7 @@ tasks:
     desc: "Generate code from proto files"
     cmds:
       - protoc -I proto proto/server/*.proto --go_out=./gen --go_opt=paths=source_relative --go-grpc_out=./gen --go-grpc_opt=paths=source_relative
-      - protoc -I . --grpc-gateway_out ./gen   --grpc-gateway_opt paths=source_relative    --grpc-gateway_opt grpc_api_configuration=proto/server/config.yaml      --grpc-gateway_opt standalone=true
-        proto/server/*.proto
+      - protoc -I proto proto/server/*.proto --openapiv2_out  ./gen
 
   
   

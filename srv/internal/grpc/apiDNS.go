@@ -75,5 +75,6 @@ func (s *ServerAPI) RestartDNS(ctx context.Context, req *grpcServer.RestartDNSRe
 		grpclog.Error("failed to restart dns", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	return &grpcServer.RestartDNSResponse{Success: true}, nil
 }

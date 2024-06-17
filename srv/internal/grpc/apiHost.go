@@ -51,5 +51,6 @@ func (s *ServerAPI) RestartHost(ctx context.Context, req *grpcServer.RestartHost
 		grpclog.Error("failed to restart host", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	return &grpcServer.RestartHostResponse{Success: true}, nil
 }

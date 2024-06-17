@@ -13,6 +13,7 @@ func getHostname(ctx context.Context) (string, error) {
 		return "", cerror.ErrCancelled
 	}
 	ctx.Done()
+
 	return os.Hostname()
 }
 
@@ -23,8 +24,7 @@ func setHostname(ctx context.Context, newHost string) error {
 	if newHost == "" {
 		return cerror.ErrBadHostname
 	}
-
-	cmd := exec.Command(fmt.Sprintf("hostnamectl set-hostname %s", newHost))
+	cmd := exec.Command(fmt.Sprintf("sudo hostnamectl set-hostname %s", newHost))
 	err := cmd.Run()
 	if err != nil {
 		return err
@@ -34,10 +34,11 @@ func setHostname(ctx context.Context, newHost string) error {
 }
 
 func restartHostnamed() error {
-	cmd := exec.Command("systemctl restart systemd-hostnamed")
+	cmd := exec.Command("sudo systemctl restart systemd-hostnamed")
 	err := cmd.Run()
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

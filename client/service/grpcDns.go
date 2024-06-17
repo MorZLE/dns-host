@@ -5,6 +5,7 @@ import (
 	pb "dns-host/gen/server"
 )
 
+// GetAllDNS возвращает все dns из resolv.conf
 func GetAllDNS() ([]*pb.Dns, error) {
 	conn, closeConn := getConn()
 	defer closeConn()
@@ -17,6 +18,7 @@ func GetAllDNS() ([]*pb.Dns, error) {
 
 }
 
+// AddDNS добавляет dns в resolv.conf
 func AddDNS(nameserver, ip string) (bool, error) {
 	conn, closeConn := getConn()
 	defer closeConn()
@@ -29,6 +31,7 @@ func AddDNS(nameserver, ip string) (bool, error) {
 
 }
 
+// DeleteDNS удаляет dns из resolv.conf
 func DeleteDNS(nameserver, ip string) (bool, error) {
 	conn, closeConn := getConn()
 	defer closeConn()
@@ -40,6 +43,7 @@ func DeleteDNS(nameserver, ip string) (bool, error) {
 	return resp.Success, nil
 }
 
+// RestartDNS перезапускает resolv.conf
 func RestartDNS() (bool, error) {
 	conn, closeConn := getConn()
 	defer closeConn()

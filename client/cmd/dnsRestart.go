@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -19,10 +16,10 @@ var dnsRestartCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ok, err := service.RestartDNS()
 		if err != nil && !ok {
-			print(fmt.Sprintf("Сервис DNS не перезапущен, ошибка %s", err), color.CRed)
+			color.Print(fmt.Sprintf("Сервис DNS не перезапущен, ошибка %s", err), color.CRed)
 			return
 		}
-		print("Сервис DNS перезапущен", color.CGreen)
+		color.Print("Сервис DNS перезапущен", color.CGreen)
 	},
 }
 

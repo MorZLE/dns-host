@@ -5,6 +5,7 @@ import (
 	pb "dns-host/gen/server"
 )
 
+// GetHostname возвращает имя хоста
 func GetHostname() (string, error) {
 	conn, closeConn := getConn()
 	defer closeConn()
@@ -17,6 +18,7 @@ func GetHostname() (string, error) {
 
 }
 
+// SetHostname устанавливает имя хоста
 func SetHostname(hostname string) error {
 	conn, closeConn := getConn()
 	defer closeConn()
@@ -28,6 +30,7 @@ func SetHostname(hostname string) error {
 	return nil
 }
 
+// RestartHost перезапускает хост
 func RestartHost() (bool, error) {
 	conn, closeConn := getConn()
 	defer closeConn()

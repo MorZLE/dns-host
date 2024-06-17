@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -20,15 +17,15 @@ var hostCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		hostname := cmd.Flag("hostname").Value.String()
 		if !pkg.Domain(hostname).Valid() {
-			print("Некорректные данные", color.CRed)
+			color.Print("Некорректные данные", color.CRed)
 		}
 
 		err := service.SetHostname(hostname)
 		if err != nil {
-			print(fmt.Sprintf("Сервер %s не изменен, ошибка %s", hostname, err), color.CRed)
+			color.Print(fmt.Sprintf("Сервер %s не изменен, ошибка %s", hostname, err), color.CRed)
 			return
 		}
-		print(fmt.Sprintf("Сервер %s изменен", hostname), color.CGreen)
+		color.Print(fmt.Sprintf("Сервер %s изменен", hostname), color.CGreen)
 	},
 }
 

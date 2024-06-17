@@ -54,6 +54,5 @@ func (a *App) Stop() {
 	const op = "grpc.app.Stop"
 
 	a.log.With(slog.String("op", op)).Info("stopping gRPC server", slog.Int("port", a.port))
-
 	a.gRPCServer.GracefulStop()
 }

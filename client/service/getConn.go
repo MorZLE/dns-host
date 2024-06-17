@@ -15,6 +15,7 @@ func SetServerAddr(hostname string) {
 	addr = hostname
 }
 
+// getConn возвращает соединение с сервером и функцию закрытия
 func getConn() (pb.ServiceDNSClient, closeConnect) {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

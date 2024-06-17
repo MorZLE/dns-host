@@ -1,12 +1,10 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"dns-host/client/service"
 	"dns-host/pkg/color"
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/spf13/cobra"
 )
@@ -22,9 +20,13 @@ var allDnsCmd = &cobra.Command{
 			color.Print(err.Error(), color.CRed)
 			return
 		}
-		for _, v := range dns {
-			fmt.Println(v.NameServer, v.Ip)
+		t := table.NewWriter()
+		t.AppendHeader(table.Row{"#", "server", "ip"})
+
+		for i, v := range dns {
+			t.AppendRow(table.Row{i + 1, v.NameServer, v.Ip})
 		}
+		fmt.Println(t.Render())
 	},
 }
 

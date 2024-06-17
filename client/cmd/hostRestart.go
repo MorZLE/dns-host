@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -19,10 +16,10 @@ var hostRestartCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ok, err := service.RestartHost()
 		if err != nil && !ok {
-			print(fmt.Sprintf("Сервис hostnamed не перезапущен, ошибка %s", err), color.CRed)
+			color.Print(fmt.Sprintf("Сервис hostnamed не перезапущен, ошибка %s", err), color.CRed)
 			return
 		}
-		print("Сервис hostnamed перезапущен", color.CGreen)
+		color.Print("Сервис hostnamed перезапущен", color.CGreen)
 	},
 }
 

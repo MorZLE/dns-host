@@ -47,6 +47,7 @@ func (s *service) GetHostname(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return hostname, nil
 }
 
@@ -54,8 +55,8 @@ func (s *service) RestartHost(ctx context.Context) error {
 	if ctx.Err() != nil {
 		return cerror.ErrCancelled
 	}
-	return restartHostnamed()
 
+	return restartHostnamed()
 }
 
 func (s *service) GetAllDNS(ctx context.Context) ([]*grpcServer.Dns, error) {
@@ -94,6 +95,7 @@ func (s *service) AddDNS(ctx context.Context, nameServer, ip string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -117,6 +119,6 @@ func (s *service) RestartDNS(ctx context.Context) error {
 	if ctx.Err() != nil {
 		return cerror.ErrCancelled
 	}
-	return s.dns.restartManagerDNS()
 
+	return s.dns.restartManagerDNS()
 }

@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -20,16 +17,16 @@ var delDnsCmd = &cobra.Command{
 		hostname := cmd.Flag("server").Value.String()
 		ip := cmd.Flag("ip").Value.String()
 		if ip == "" || hostname == "" {
-			print("Некорректные данные", color.CRed)
+			color.Print("Некорректные данные", color.CRed)
 			return
 		}
 
 		res, err := service.DeleteDNS(hostname, ip)
 		if err != nil && !res {
-			print(fmt.Sprintf("Сервер %s IP %s не удален, ошибка %s", hostname, ip, err), color.CRed)
+			color.Print(fmt.Sprintf("Сервер %s IP %s не удален, ошибка %s", hostname, ip, err), color.CRed)
 			return
 		}
-		print(fmt.Sprintf("Сервер %s IP %s удален", hostname, ip), color.CGreen)
+		color.Print(fmt.Sprintf("Сервер %s IP %s удален", hostname, ip), color.CGreen)
 	},
 }
 
