@@ -7,24 +7,24 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"os/exec"
 	"strings"
 	"sync"
 )
 
-func NewDNSWorker(log *slog.Logger, pathResolve string) (*DNSWorker, error) {
-	dns := DNSWorker{cacheDNS: map[pkg.Ip]pkg.Domain{}, pathResolve: pathResolve, log: log}
+const pathDNS = "/etc/hosts"
+
+func NewDNSWorker(log *slog.Logger) (*DNSWorker, error) {
+	dns := DNSWorker{cacheDNS: map[pkg.Ip]pkg.Domain{}, log: log}
 	_, err := dns.getAllDNS(context.Background())
 
 	return &dns, err
 }
 
 type DNSWorker struct {
-	log         *slog.Logger
-	mut         sync.Mutex
-	pathResolve string
-	otherData   []string
-	cacheDNS    map[pkg.Ip]pkg.Domain
+	log       *slog.Logger
+	mut       sync.Mutex
+	otherData []string
+	cacheDNS  map[pkg.Ip]pkg.Domain
 }
 
 func (d *DNSWorker) getAllDNS(ctx context.Context) (map[pkg.Ip]pkg.Domain, error) {
@@ -38,7 +38,7 @@ func (d *DNSWorker) getAllDNS(ctx context.Context) (map[pkg.Ip]pkg.Domain, error
 
 	d.otherData = []string{}
 
-	file, err := os.ReadFile(d.pathResolve)
+	file, err := os.ReadFile(pathDNS)
 	if err != nil {
 		return nil, err
 	}
@@ -142,23 +142,12 @@ func (d *DNSWorker) rewriteDNS(ctx context.Context) error {
 		return err
 	}
 
-	return d.restartManagerDNS()
-}
-
-// restartManagerDNS перезапускает NetworkManager
-func (d *DNSWorker) restartManagerDNS() error {
-	cmd := exec.Command("sudo systemctl restart NetworkManager")
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 // writeDNS записывает файл с dns
 func (d *DNSWorker) writeDNS(ctx context.Context) error {
-	file, err := os.OpenFile(d.pathResolve, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(pathDNS, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	defer file.Close()
 	if err != nil {
 		return err

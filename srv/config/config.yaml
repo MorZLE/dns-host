@@ -1,4 +1,2 @@
 grpc:
   port: 44044
-dns:
-  pathResolve: "test/dns"

@@ -29,15 +29,3 @@ func SetHostname(hostname string) error {
 	}
 	return nil
 }
-
-// RestartHost перезапускает хост
-func RestartHost() (bool, error) {
-	conn, closeConn := getConn()
-	defer closeConn()
-
-	res, err := conn.RestartHost(context.Background(), &pb.RestartHostRequest{})
-	if err != nil {
-		return false, err
-	}
-	return res.Success, nil
-}
