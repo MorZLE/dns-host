@@ -19,12 +19,9 @@ func (s *ServerAPI) AddDNS(ctx context.Context, req *grpcServer.AddDNSRequest) (
 
 	err := s.srv.AddDNS(ctx, req.NameServer, req.Ip)
 	if err != nil {
-		resp.Error = err.Error()
 		grpclog.Error("failed to add dns", err)
 		return &resp, err
 	}
-	resp.Success = true
-
 	return &resp, nil
 }
 
@@ -57,24 +54,8 @@ func (s *ServerAPI) DeleteDNS(ctx context.Context, req *grpcServer.DeleteDNSRequ
 	err := s.srv.DeleteDNS(ctx, req.NameServer, req.Ip)
 	if err != nil {
 		grpclog.Error("failed to delete dns", err)
-		resp.Error = err.Error()
 		return &resp, err
 	}
-	resp.Success = true
 
 	return &resp, nil
-}
-
-func (s *ServerAPI) RestartDNS(ctx context.Context, req *grpcServer.RestartDNSRequest) (*grpcServer.RestartDNSResponse, error) {
-	if ctx.Err() != nil {
-		return nil, status.Error(codes.Canceled, "the client canceled the request")
-	}
-	grpclog.Info("restart dns")
-	err := s.srv.RestartDNS(ctx)
-	if err != nil {
-		grpclog.Error("failed to restart dns", err)
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &grpcServer.RestartDNSResponse{Success: true}, nil
 }

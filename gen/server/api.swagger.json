@@ -46,26 +46,10 @@
       }
     },
     "serviceDNSAddDNSResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean"
-        },
-        "error": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "serviceDNSDeleteDNSResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean"
-        },
-        "error": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "serviceDNSDns": {
       "type": "object",
@@ -98,32 +82,8 @@
         }
       }
     },
-    "serviceDNSRestartDNSResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean"
-        },
-        "error": {
-          "type": "string"
-        }
-      }
-    },
-    "serviceDNSRestartHostResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean"
-        }
-      }
-    },
     "serviceDNSSetHostnameResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean"
-        }
-      }
+      "type": "object"
     }
   }
 }

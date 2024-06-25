@@ -21,7 +21,7 @@ func (s *ServerAPI) SetHostname(ctx context.Context, req *grpcServer.SetHostname
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	return &grpcServer.SetHostnameResponse{Success: true}, nil
+	return &grpcServer.SetHostnameResponse{}, nil
 }
 
 func (s *ServerAPI) GetHostname(ctx context.Context, req *grpcServer.GetHostnameRequest) (*grpcServer.GetHostnameResponse, error) {
@@ -39,18 +39,4 @@ func (s *ServerAPI) GetHostname(ctx context.Context, req *grpcServer.GetHostname
 	resp.Hostname = hostname
 
 	return &resp, nil
-}
-
-func (s *ServerAPI) RestartHost(ctx context.Context, req *grpcServer.RestartHostRequest) (*grpcServer.RestartHostResponse, error) {
-	if ctx.Err() != nil {
-		return nil, status.Error(codes.Canceled, "the client canceled the request")
-	}
-	grpclog.Info("restart host")
-	err := s.srv.RestartHost(ctx)
-	if err != nil {
-		grpclog.Error("failed to restart host", err)
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &grpcServer.RestartHostResponse{Success: true}, nil
 }

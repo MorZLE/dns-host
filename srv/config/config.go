@@ -9,11 +9,6 @@ import (
 
 type Config struct {
 	GRPC *grpcConfig `yaml:"grpc"`
-	DNS  *DNSConfig  `yaml:"dns"`
-}
-
-type DNSConfig struct {
-	PathResolve string `yaml:"pathResolve"`
 }
 
 type grpcConfig struct {
@@ -45,13 +40,6 @@ func parseConfig() *Config {
 		}
 
 		cfg.GRPC.Port = port
-	}
-	if cfg.DNS.PathResolve == "" {
-		path := os.Getenv("DNS_PATH_RESOLVE")
-		if path == "" {
-			path = "/etc/resolv.conf"
-		}
-		cfg.DNS.PathResolve = path
 	}
 
 	return &cfg

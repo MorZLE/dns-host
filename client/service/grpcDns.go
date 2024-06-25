@@ -19,39 +19,26 @@ func GetAllDNS() ([]*pb.Dns, error) {
 }
 
 // AddDNS добавляет dns в resolv.conf
-func AddDNS(nameserver, ip string) (bool, error) {
+func AddDNS(nameserver, ip string) error {
 	conn, closeConn := getConn()
 	defer closeConn()
 
-	resp, err := conn.AddDNS(context.Background(), &pb.AddDNSRequest{NameServer: nameserver, Ip: ip})
+	_, err := conn.AddDNS(context.Background(), &pb.AddDNSRequest{NameServer: nameserver, Ip: ip})
 	if err != nil {
-		return false, err
+		return err
 	}
-	return resp.Success, nil
+	return nil
 
 }
 
 // DeleteDNS удаляет dns из resolv.conf
-func DeleteDNS(nameserver, ip string) (bool, error) {
+func DeleteDNS(nameserver, ip string) error {
 	conn, closeConn := getConn()
 	defer closeConn()
 
-	resp, err := conn.DeleteDNS(context.Background(), &pb.DeleteDNSRequest{NameServer: nameserver, Ip: ip})
+	_, err := conn.DeleteDNS(context.Background(), &pb.DeleteDNSRequest{NameServer: nameserver, Ip: ip})
 	if err != nil {
-		return false, err
+		return err
 	}
-	return resp.Success, nil
-}
-
-// RestartDNS перезапускает resolv.conf
-func RestartDNS() (bool, error) {
-	conn, closeConn := getConn()
-	defer closeConn()
-
-	res, err := conn.RestartDNS(context.Background(), &pb.RestartDNSRequest{})
-	if err != nil {
-		return false, err
-	}
-
-	return res.Success, nil
+	return nil
 }

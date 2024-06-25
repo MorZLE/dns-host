@@ -21,8 +21,8 @@ var delDnsCmd = &cobra.Command{
 			return
 		}
 
-		res, err := service.DeleteDNS(hostname, ip)
-		if err != nil && !res {
+		err := service.DeleteDNS(hostname, ip)
+		if err != nil {
 			color.Print(fmt.Sprintf("Сервер %s IP %s не удален, ошибка %s", hostname, ip, err), color.CRed)
 			return
 		}

@@ -15,12 +15,10 @@ func NewService(log *slog.Logger, dns *DNSWorker) IService {
 type IService interface {
 	SetHostname(ctx context.Context, newHost string) error
 	GetHostname(ctx context.Context) (string, error)
-	RestartHost(ctx context.Context) error
 
 	GetAllDNS(ctx context.Context) ([]*grpcServer.Dns, error)
 	AddDNS(ctx context.Context, nameServer, ip string) error
 	DeleteDNS(ctx context.Context, nameServer, ip string) error
-	RestartDNS(ctx context.Context) error
 }
 
 type service struct {
@@ -49,14 +47,6 @@ func (s *service) GetHostname(ctx context.Context) (string, error) {
 	}
 
 	return hostname, nil
-}
-
-func (s *service) RestartHost(ctx context.Context) error {
-	if ctx.Err() != nil {
-		return cerror.ErrCancelled
-	}
-
-	return restartHostnamed()
 }
 
 func (s *service) GetAllDNS(ctx context.Context) ([]*grpcServer.Dns, error) {
@@ -114,11 +104,4 @@ func (s *service) DeleteDNS(ctx context.Context, nameServer, ip string) error {
 	}
 
 	return nil
-}
-func (s *service) RestartDNS(ctx context.Context) error {
-	if ctx.Err() != nil {
-		return cerror.ErrCancelled
-	}
-
-	return s.dns.restartManagerDNS()
 }

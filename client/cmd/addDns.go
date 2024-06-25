@@ -21,8 +21,8 @@ var addDnsCmd = &cobra.Command{
 			return
 		}
 
-		res, err := service.AddDNS(hostname, ip)
-		if err != nil && !res {
+		err := service.AddDNS(hostname, ip)
+		if err != nil {
 			color.Print(fmt.Sprintf("Сервер %s IP %s не добавлен, ошибка %s", hostname, ip, err), color.CRed)
 			return
 		}

@@ -30,15 +30,5 @@ func setHostname(ctx context.Context, newHost string) error {
 		return err
 	}
 
-	return restartHostnamed()
-}
-
-func restartHostnamed() error {
-	cmd := exec.Command("sudo systemctl restart systemd-hostnamed")
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
